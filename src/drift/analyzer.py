@@ -53,7 +53,7 @@ def aggregate_drift(n: int = 100):
 
         drift_summary[feature] = {
             "p_value": float(p_value),
-            "drift_detected": p_value < 0.05
+            "drift_detected": bool(p_value < 0.05)
         }
 
     drifted_features = sum(
