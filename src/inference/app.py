@@ -7,6 +7,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Dict, Union
 from pathlib import Path  
+from src.monitoring.store import log_prediction
+from src.drift.analyzer import aggregate_drift
 
 MODEL_URI = "runs:/483eb277392341e4b4ded994ab8ff948/model"
 
@@ -53,6 +55,10 @@ def load_model():
     global model
     model = mlflow.sklearn.load_model(MODEL_URI)
 
+@app.get("/drift/report")
+def drift_report(samples: int = 100):
+    return aggregate_drift(samples)
+
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(application: CreditApplication):
@@ -67,6 +73,11 @@ def predict(application: CreditApplication):
     prediction = int(prob >= 0.5)
 
     drift = detect_drift(application.data)
+    log_prediction(
+        input_data=application.data,
+        prediction=prediction,
+        probability=float(prob)
+    )
     return {
         "prediction": prediction,
         "probability": float(prob),
