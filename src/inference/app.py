@@ -11,6 +11,8 @@ from src.monitoring.store import log_prediction
 from src.drift.analyzer import aggregate_drift
 from src.drift.alerts import evaluate_alerts
 from src.drift.alerting import generate_alert
+from src.drift.tree_drift import tree_based_drift
+from src.inference.drift_response import drift_action_handler
 
 MODEL_URI = "runs:/483eb277392341e4b4ded994ab8ff948/model"
 
@@ -65,9 +67,14 @@ def drift_report(samples: int = 100):
 def drift_alerts(window_size: int = 100):
     drift_summary = aggregate_drift(window_size)
     alert_report = generate_alert(drift_summary)
+    response_action = drift_action_handler(
+        drift_ratio=drift_summary.get("drift_ratio", 0.0),
+        alert_status=alert_report.get("status", "no_alert")
+    )
     return {
         "drift_summary": drift_summary,
-        "alert_report": alert_report
+        "alert_report": alert_report,
+        "response_action": response_action
     }
 
 @app.post("/predict", response_model=PredictionResponse)
@@ -93,3 +100,7 @@ def predict(application: CreditApplication):
         "probability": float(prob),
         "drift": drift
     }
+
+@app.get("/drift/tree")
+def tree_drift(window_size: int = 200):
+    return tree_based_drift(window_size)
