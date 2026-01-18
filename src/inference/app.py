@@ -9,6 +9,8 @@ from typing import Dict, Union
 from pathlib import Path  
 from src.monitoring.store import log_prediction
 from src.drift.analyzer import aggregate_drift
+from src.drift.alerts import evaluate_alerts
+from src.drift.alerting import generate_alert
 
 MODEL_URI = "runs:/483eb277392341e4b4ded994ab8ff948/model"
 
@@ -59,6 +61,14 @@ def load_model():
 def drift_report(samples: int = 100):
     return aggregate_drift(samples)
 
+@app.get("/drift/alerts")
+def drift_alerts(window_size: int = 100):
+    drift_summary = aggregate_drift(window_size)
+    alert_report = generate_alert(drift_summary)
+    return {
+        "drift_summary": drift_summary,
+        "alert_report": alert_report
+    }
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(application: CreditApplication):
