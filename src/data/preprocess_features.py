@@ -9,8 +9,10 @@ def build_preprocessor(df: pd.DataFrame):
     """
     Builds a preprocessing pipeline for numerical and categorical features.
     """
-
-    feature_df = df.drop(columns=["TARGET", "SK_ID_CURR"])
+    DROP_COLS = ["TARGET", "SK_ID_CURR"]
+    feature_df = df.drop(
+        columns=[c for c in DROP_COLS if c in df.columns]
+    )
     numeric_features = feature_df.select_dtypes(include=["int64", "float64"]).columns
     categorical_features = feature_df.select_dtypes(include=["object"]).columns
     numeric_pipeline = Pipeline(

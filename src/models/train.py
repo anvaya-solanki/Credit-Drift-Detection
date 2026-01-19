@@ -13,6 +13,7 @@ from sklearn.metrics import (
 )
 
 from src.data.preprocess_features import build_preprocessor
+import argparse 
 
 DATA_PATH = Path("data/processed")
 ARTIFACT_PATH = Path("artifacts/models")
@@ -42,10 +43,25 @@ def evaluate(model, X, y):
         "f1": f1
     }
 
-def main():
-    X_train, y_train = load_split("train")
-    X_val, y_val = load_split("val")
-    X_test, y_test = load_split("test")
+def load_retraining_data(csv_path: str):
+    df = pd.read_csv(csv_path)
+    X = df.drop(columns=[TARGET])
+    y = df[TARGET]
+    return X, y
+
+def main(retrain_data: str | None = None):
+    run_name = "logistic_regression_baseline"
+    retraining_flag = False
+    if retrain_data:
+        X_train, y_train = load_retraining_data(retrain_data)
+        X_val, y_val = X_train, y_train
+        X_test, y_test = X_train, y_train
+        run_name = "logistic_regression_retraining"
+        retraining_flag = True
+    else:
+        X_train, y_train = load_split("train")
+        X_val, y_val = load_split("val")
+        X_test, y_test = load_split("test")
     preprocessor, num_features, cat_features = build_preprocessor(
         pd.concat([X_train, y_train], axis=1)
     )
@@ -63,7 +79,8 @@ def main():
     )
     mlflow.set_experiment("home_credit_baseline")
 
-    with mlflow.start_run(run_name="logistic_regression_baseline"):
+    with mlflow.start_run(run_name=run_name):
+        mlflow.set_tag("retraining", retraining_flag)
         pipeline.fit(X_train, y_train)
         train_metrics = evaluate(pipeline, X_train, y_train)
         val_metrics = evaluate(pipeline, X_val, y_val)
@@ -89,4 +106,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--data",
+        help="Path to retraining CSV (optional)",
+        required=False
+    )
+    args = parser.parse_args()
+
+    main(retrain_data=args.data)

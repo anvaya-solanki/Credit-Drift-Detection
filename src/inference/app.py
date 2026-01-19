@@ -13,8 +13,9 @@ from src.drift.alerts import evaluate_alerts
 from src.drift.alerting import generate_alert
 from src.drift.tree_drift import tree_based_drift
 from src.inference.drift_response import drift_action_handler
+from src.data.build_retraining_data import build_retraining_data
 
-MODEL_URI = "runs:/483eb277392341e4b4ded994ab8ff948/model"
+MODEL_URI = "runs:/c2d895381b7548e5b1f4d014686d12f6/model" 
 
 app = FastAPI(title="Home Credit Inference API")
 
@@ -71,6 +72,7 @@ def drift_alerts(window_size: int = 100):
         drift_ratio=drift_summary.get("drift_ratio", 0.0),
         alert_status=alert_report.get("status", "no_alert")
     )
+    build_retraining_data(min_samples=window_size)
     return {
         "drift_summary": drift_summary,
         "alert_report": alert_report,
