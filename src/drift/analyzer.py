@@ -64,9 +64,11 @@ def aggregate_drift(window_size: int = 100):
     drifted_features = sum(
         1 for v in drift_summary.values() if v["drift_detected"]
     )
+    sample_count = len(recent_df)
     return {
         "status": "ok",
-        "window_size": len(recent_df),
+        "window_size": sample_count,
+        "samples": sample_count,
         "time_range": {
             "from": recent_df["timestamp"].iloc[0]
             if "timestamp" in recent_df.columns else None,

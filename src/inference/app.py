@@ -16,9 +16,7 @@ from src.inference.drift_response import drift_action_handler
 from src.data.build_retraining_data import build_retraining_data
 
 MODEL_URI = "runs:/c2d895381b7548e5b1f4d014686d12f6/model" 
-
 app = FastAPI(title="Home Credit Inference API")
-
 
 BASE_DIR = Path(__file__).resolve().parent  
 REF_STATS_PATH = BASE_DIR / "reference_stats.pkl"
