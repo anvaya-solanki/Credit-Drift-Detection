@@ -15,22 +15,7 @@ This system addresses these challenges by embedding drift detection and retraini
 
 The system is designed as a modular pipeline where each stage contributes to monitoring and maintaining model health.
 
-```
-flowchart TD
-    A[Incoming Production Data] --> B[Data Preprocessing]
-    B --> C[Model Inference]
-    C --> D[Prediction Logging]
-    D --> E{Drift Detection Engine}
-    E -->|No Drift| F[Continue Monitoring]
-    E -->|High Drift| G[Auto Retraining Trigger]
-    G --> H[Model Retraining]
-    H --> I[Model Evaluation]
-    I --> J[MLflow Tracking & Model Registry]
-    J --> K[Monitoring Dashboard]
-    
-    style E fill:#f9f,stroke:#333,stroke-width:2px
-    style G fill:#ff9,stroke:#333,stroke-width:2px
-```
+[![](https://mermaid.ink/img/pako:eNpFkk9z2yAQxb8Ks4eebI9iWdafQ2cSy42dxp1OJ6dKOVBpjZhKrAdB29Txdy9Ccs0JeL_32AXOUFGNkMGxpd9Vw7VhL3mpmBv3xV5V1Ekl2FdNta2MJMVybvgrm88_sodimDsNT5oq7HtHvo7WBw9sioPLbtleHVGjqnBSN17NC-es5Zj6TELc7LkHtudcy6NhORocqa1yEF5GaDtA71-IeeqdfSo2pIxUFtmBlDSkb4Eju5OiudKPxb01xL6h0VyqoccXLYVAPTkefQm7qYMbNsk7L-8nefuLt5YPJU7y3stPxeF5uFYXzaufwxkf2DVPyN7otwl_8vjn4la3u-a--UFc1xMCMxBa1pAZbXEGHeqOD0s4D3oJpsEOS8jcVKF11bYllOribCeuvhN1V6cmKxrIjrzt3cqeam4wl1xo3v3fdY9Vo96QVQay9Z3PgOwMfyALw3SRLKNVEgVhFKbpegZvkM3DRRCtlnEaRNF6lSSru_Ayg7_-2GCRxnGShEkchXEQLCNnce_u-jyMP89_wMs_PCPL5Q?type=png)](https://mermaid.live/edit#pako:eNpFkk9z2yAQxb8Ks4eebI9iWdafQ2cSy42dxp1OJ6dKOVBpjZhKrAdB29Txdy9Ccs0JeL_32AXOUFGNkMGxpd9Vw7VhL3mpmBv3xV5V1Ekl2FdNta2MJMVybvgrm88_sodimDsNT5oq7HtHvo7WBw9sioPLbtleHVGjqnBSN17NC-es5Zj6TELc7LkHtudcy6NhORocqa1yEF5GaDtA71-IeeqdfSo2pIxUFtmBlDSkb4Eju5OiudKPxb01xL6h0VyqoccXLYVAPTkefQm7qYMbNsk7L-8nefuLt5YPJU7y3stPxeF5uFYXzaufwxkf2DVPyN7otwl_8vjn4la3u-a--UFc1xMCMxBa1pAZbXEGHeqOD0s4D3oJpsEOS8jcVKF11bYllOribCeuvhN1V6cmKxrIjrzt3cqeam4wl1xo3v3fdY9Vo96QVQay9Z3PgOwMfyALw3SRLKNVEgVhFKbpegZvkM3DRRCtlnEaRNF6lSSru_Ayg7_-2GCRxnGShEkchXEQLCNnce_u-jyMP89_wMs_PCPL5Q)
 
 ## Drift Detection and Alerting
 
