@@ -15,44 +15,22 @@ This system addresses these challenges by embedding drift detection and retraini
 
 The system is designed as a modular pipeline where each stage contributes to monitoring and maintaining model health.
 
-Incoming Production Data
-        |
-        v
-Data Preprocessing
-(cleaning, encoding, scaling)
-        |
-        v
-Model Inference
-(predictions & probabilities)
-        |
-        v
-Prediction Logging
-(timestamp, features, outputs)
-        |
-        v
-Drift Detection Engine
-(statistical comparison over windows)
-        |
-        +----------------------------+
-        |                            |
-   No Significant Drift        High Drift Alert
-        |                            |
-        v                            v
-Continue Monitoring        Auto Retraining Trigger
-                                     |
-                                     v
-                             Model Retraining
-                             (updated dataset)
-                                     |
-                                     v
-                             Model Evaluation
-                                     |
-                                     v
-                             MLflow Tracking &
-                              Model Registry
-                                     |
-                                     v
-                           Monitoring Dashboard
+```
+flowchart TD
+    A[Incoming Production Data] --> B[Data Preprocessing]
+    B --> C[Model Inference]
+    C --> D[Prediction Logging]
+    D --> E{Drift Detection Engine}
+    E -->|No Drift| F[Continue Monitoring]
+    E -->|High Drift| G[Auto Retraining Trigger]
+    G --> H[Model Retraining]
+    H --> I[Model Evaluation]
+    I --> J[MLflow Tracking & Model Registry]
+    J --> K[Monitoring Dashboard]
+    
+    style E fill:#f9f,stroke:#333,stroke-width:2px
+    style G fill:#ff9,stroke:#333,stroke-width:2px
+```
 
 ## Drift Detection and Alerting
 
