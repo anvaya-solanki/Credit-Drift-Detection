@@ -6,7 +6,7 @@ from typing import Dict
 
 class DriftDetector:
     """
-    Pure statistical drift detector (stateless)
+    Pure stateless statistical drift detector using the Kolmogorov-Smirnov test.
     """
 
     def __init__(self, reference_df: pd.DataFrame):

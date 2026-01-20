@@ -14,21 +14,8 @@ st.set_page_config(page_title="MLOps Drift Dashboard", layout="wide")
 
 st.title("Model Drift & Retraining Dashboard")
 
-BASE_DIR = r"D:\College\Data Drift Detection\mlruns\1\models"
-models = {}
-for model_id in os.listdir(BASE_DIR):
-    artifact_path = os.path.join(BASE_DIR, model_id, "artifacts")
-    model_uri = f"file://{artifact_path.replace(os.sep, '/')}"
-    try:
-        model = mlflow.sklearn.load_model(model_uri)
-        models[model_id] = model
-        print(f"Loaded model: {model_id}")
-    except Exception as e:
-        print(f"Failed to load model {model_id}: {e}")
-print("Total loaded models:", len(models))
-
 st.header("Drift Monitoring")
-window_size = st.slider("Drift window size", 50, 500, 100, step=50)
+window_size = st.slider("Drift window size", 0, 500, 100, step=50)
 if st.button("Run Drift Check"):
     try:
         resp = requests.get(f"{API_BASE}/drift/alerts", params={"window_size": window_size})
@@ -83,37 +70,12 @@ try:
     for v in versions:
         model_rows.append({
             "Version": v.version,
-            "Stage": v.current_stage,
             "Run ID": v.run_id,
             "Source": v.source
         })
     st.dataframe(pd.DataFrame(model_rows))
 except Exception as e:
     st.warning(f"Could not load model registry: {e}")
-
-st.header("Model Performance Comparison")
-try:
-    runs = mlflow.search_runs(
-        experiment_ids=["0"],
-        order_by=["start_time DESC"]
-    )
-    metrics_cols = [
-        "metrics.accuracy",
-        "metrics.f1_score",
-        "metrics.roc_auc"
-    ]
-    available_cols = [c for c in metrics_cols if c in runs.columns]
-    if available_cols:
-        comparison_df = runs[available_cols + ["run_id"]].head(5)
-        comparison_df.columns = [c.replace("metrics.", "") for c in comparison_df.columns]
-        st.dataframe(comparison_df)
-        st.line_chart(
-            comparison_df.set_index("run_id")
-        )
-    else:
-        st.warning("No comparable metrics logged yet.")
-except Exception as e:
-    st.error(f"Model comparison failed: {e}")
 
 st.header("Retraining Status")
 RETRAIN_PATH = Path(r"D:\College\Data Drift Detection\data\retraining\retraining.csv")
@@ -131,26 +93,16 @@ if RETRAIN_PATH.exists():
         col3.warning("WAITING")
         st.warning("Collect more labeled data before retraining.")
 
-
-
-
-
-
 st.header("Model Performance Comparison")
-
 try:
-    # 1. Get experiment by name
     experiment = mlflow.get_experiment_by_name("home_credit_baseline")
-
     if experiment is None:
         st.warning("MLflow experiment 'home_credit_baseline' not found.")
     else:
-        # 2. Fetch all runs from that experiment
         runs = mlflow.search_runs(
             experiment_ids=[experiment.experiment_id],
             order_by=["metrics.val_roc_auc DESC"]
         )
-
         if runs.empty:
             st.warning("No MLflow runs found for this experiment.")
         else:
@@ -164,7 +116,6 @@ try:
                     "tags.retraining"
                 ]
             ].copy()
-
             comparison_df.rename(
                 columns={
                     "run_id": "Run ID",
@@ -176,22 +127,14 @@ try:
                 },
                 inplace=True
             )
-
             st.dataframe(comparison_df, use_container_width=True)
-
             best_model = comparison_df.iloc[0]
-
             st.success(
-                f"🏆 Best Model: Run {best_model['Run ID']} "
+                f"Best Model: Run {best_model['Run ID']} "
                 f"(Val ROC-AUC = {best_model['Val ROC-AUC']:.4f})"
             )
-
 except Exception as e:
     st.error(f"Model comparison failed: {e}")
-
-
-
-
 
 st.markdown("---")
 st.caption("Monitoring Dashboard")
